@@ -1,0 +1,3 @@
+[submodule "lwiot-core"]
+	path = lwiot-core
+	url = https://github.com/lwIoT/lwiot-core.git
