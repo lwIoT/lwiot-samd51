@@ -29,6 +29,14 @@ SET(PORT_SOURCE_FILES
 	${PROJECT_SOURCE_DIR}/samd51/usb/hpl_usb.c
 	${PROJECT_SOURCE_DIR}/samd51/usb/usb_protocol.c
 	${PROJECT_SOURCE_DIR}/samd51/usb/usbdc.c
+
+	${PROJECT_SOURCE_DIR}/samd51/sercom/sercom.cpp
+	${PROJECT_SOURCE_DIR}/samd51/sercom/hardwarei2calgorithm.cpp
+
+	${PROJECT_SOURCE_DIR}/samd51/gpio/gpio.cpp
+	${PROJECT_SOURCE_DIR}/samd51/gpio/gpiochip.cpp
+
+	${PROJECT_SOURCE_DIR}/samd51/new.cpp
 )
 
 if(CONFIG_STANDALONE)
