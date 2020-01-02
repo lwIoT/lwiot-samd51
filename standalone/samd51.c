@@ -5,12 +5,13 @@
  * @email  michel@michelmegens.net
  */
 
+#include <stdint.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
 #include <sam.h>
 #include <core_cm4.h>
-
-#include <lwiot/types.h>
+#include <lwiot/samd51/usb/usb_dev.h>
 
 volatile uint32_t __tick;
 
@@ -75,9 +76,20 @@ void *lwiot_mem_realloc(void *ptr, size_t size)
 	return realloc(ptr, size);
 }
 
+extern void samd51_init();
+extern void chip_init();
+
 void no_os_init()
 {
 	__tick = 0;
+
+	chip_init();
+	usb_init();
+
+	setbuf(stdout, NULL);
+	setbuf(stdin, NULL);
+	setbuf(stderr, NULL);
+	cdcd_acm_start();
 
 	SysTick->CTRL = 0;
 	SysTick-> LOAD = (F_CPU / 1000) - 1;

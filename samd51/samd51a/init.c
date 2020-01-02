@@ -13,8 +13,6 @@
 #include <lwiot/samd51/usb/hal_usb_device.h>
 #include <hal_gpio.h>
 
-uint32_t SystemCoreClock = F_CPU;
-
 #define PA24 GPIO(GPIO_PORTA, 24)
 #define PA25 GPIO(GPIO_PORTA, 25)
 
@@ -386,7 +384,7 @@ static void USB_DEVICE_INSTANCE_init(void)
 
 void chip_init()
 {
-	//SystemInit();
+	SystemInit();
 	sys_init();
 	samd51_init();
 

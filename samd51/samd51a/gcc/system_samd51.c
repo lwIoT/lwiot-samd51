@@ -33,7 +33,7 @@
  * Initial system clock frequency. The System RC Oscillator (RCSYS) provides
  *  the source for the main clock at chip startup.
  */
-#define __SYSTEM_CLOCK (48000000)
+#define __SYSTEM_CLOCK F_CPU
 
 uint32_t SystemCoreClock = __SYSTEM_CLOCK; /*!< System Clock Frequency (Core Clock)*/
 
@@ -47,7 +47,6 @@ void SystemInit(void)
 {
 	// Keep the default device state after reset
 	SystemCoreClock = __SYSTEM_CLOCK;
-	return;
 }
 
 /**
@@ -60,5 +59,4 @@ void SystemCoreClockUpdate(void)
 {
 	// Not implemented
 	SystemCoreClock = __SYSTEM_CLOCK;
-	return;
 }

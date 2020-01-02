@@ -27,6 +27,7 @@ SET(PORT_SOURCE_FILES
 
 	# USB
 	${PROJECT_SOURCE_DIR}/samd51/usb/cdcdf_acm.c
+	${PROJECT_SOURCE_DIR}/samd51/usb/usb_dev.c
 	${PROJECT_SOURCE_DIR}/samd51/usb/hal_usb_device.c
 	${PROJECT_SOURCE_DIR}/samd51/usb/hpl_usb.c
 	${PROJECT_SOURCE_DIR}/samd51/usb/usb_protocol.c
@@ -51,7 +52,6 @@ SET(SYSTEM_SOURCE_FILES
 	${PROJECT_SOURCE_DIR}/samd51/samd51a/gcc/system_samd51.c
 	${PROJECT_SOURCE_DIR}/samd51/samd51a/gcc/gcc/startup_samd51.c
 	${PROJECT_SOURCE_DIR}/samd51/hal/utils/src/utils_syscalls.c
-	${PROJECT_SOURCE_DIR}/samd51/hal/utils/src/utils_read_write.c
 	${PROJECT_SOURCE_DIR}/samd51/hal/src/hal_time.c
 	${PROJECT_SOURCE_DIR}/samd51/gpio/irq_handlers.c
 )
