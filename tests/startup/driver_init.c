@@ -358,10 +358,10 @@ extern void samd51_init();
 
 void system_init(void)
 {
-	sys_init();
-	samd51_init();
-
-	USB_DEVICE_INSTANCE_init();
+//	sys_init();
+//	samd51_init();
+//
+//	USB_DEVICE_INSTANCE_init();
 
 	gpio_set_pin_direction(LED_PIN, GPIO_DIRECTION_OUT);
 	gpio_set_pin_level(LED_PIN,	true);
