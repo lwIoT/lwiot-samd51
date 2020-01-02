@@ -17,7 +17,7 @@ namespace lwiot
 {
 	namespace samd51
 	{
-		GpioChip::GpioChip() : lwiot::GpioChip(PINS), irq_map_()
+		GpioChip::GpioChip() : lwiot::GpioChip(PINS), irq_map_(), initialized_(false)
 		{
 			this->init();
 		}
@@ -25,15 +25,13 @@ namespace lwiot
 		void GpioChip::init()
 		{
 			for(auto& pin : this->irq_map_) {
-				pin.pin = 0xFFFF;
+				pin.pin = NOT_INITIALIZED;
 			}
-
-			this->initIrqs();
 		}
 
 		void GpioChip::initIrqs()
 		{
-			for(auto idx = 0U; idx < detail_gpio::EXTERNAL_NUM_INTERRUPTS; idx++) {
+			for(auto idx = 0U; idx < EXTERNAL_NUM_INTERRUPTS; idx++) {
 				uint8_t irqn = EIC_0_IRQn + idx;
 
 				NVIC_DisableIRQ(static_cast<IRQn_Type>(irqn));
@@ -101,6 +99,11 @@ namespace lwiot
 			uint32_t config;
 			uint32_t pos;
 
+			if(!this->initialized_) {
+				this->initIrqs();
+				this->initialized_ = true;
+			}
+
 			if(pin == detail_gpio::NMI_IRQ_PIN) {
 				EIC->NMIFLAG.bit.NMI = 1;
 
@@ -119,10 +122,10 @@ namespace lwiot
 					break;
 				}
 
-				this->irq_map_[detail_gpio::EXTERNAL_INT_NMI].handler = handler;
-				this->irq_map_[detail_gpio::EXTERNAL_INT_NMI].pin = pin;
+				this->irq_map_[EXTERNAL_INT_NMI].handler = handler;
+				this->irq_map_[EXTERNAL_INT_NMI].pin = pin;
 
-				EIC->INTENSET.reg = EIC_INTENSET_EXTINT(1 << detail_gpio::EXTERNAL_INT_NMI);
+				EIC->INTENSET.reg = EIC_INTENSET_EXTINT(1 << EXTERNAL_INT_NMI);
 			} else {
 				if(raw_pin & 1) {
 					temp = (PORT->Group[port].PMUX[raw_pin >> 1].reg) & PORT_PMUX_PMUXE(0xF);
@@ -134,12 +137,12 @@ namespace lwiot
 					PORT->Group[port].PINCFG[raw_pin].reg |= PORT_PINCFG_PMUXEN | PORT_PINCFG_DRVSTR;
 				}
 
-				auto irqno = raw_pin % (detail_gpio::EXTERNAL_NUM_INTERRUPTS - 1);
+				auto irqno = raw_pin % (EXTERNAL_NUM_INTERRUPTS - 1);
 
 				this->irq_map_[irqno].handler = handler;
 				this->irq_map_[irqno].pin = pin;
 
-				if(irqno > detail_gpio::EXTERNAL_INT_7) {
+				if(irqno > EXTERNAL_INT_7) {
 					config = 1;
 					pos = (irqno - 8) << 2;
 				} else {
@@ -172,8 +175,9 @@ namespace lwiot
 			}
 
 			EIC->CTRLA.bit.ENABLE = 1;
-			while(EIC->SYNCBUSY.bit.ENABLE == 1) {
-			}
+			while(EIC->SYNCBUSY.bit.ENABLE == 1) { }
+
+			print_dbg("IRQ enabled!\n");
 		}
 
 #ifdef HAVE_DEBUG
@@ -181,15 +185,15 @@ namespace lwiot
 		{
 			auto pb16 = GPIO(GPIO_PORTB, 16);
 			auto pb23 = GPIO(GPIO_PORTB, 23);
-			auto pa14 = GPIO(GPIO_PORTA, 14);
+			auto pa17 = GPIO(GPIO_PORTA, 17);
 
-			auto irq_pb16 = GPIO_PIN(pb16) % (detail_gpio::EXTERNAL_NUM_INTERRUPTS - 1);
-			auto irq_pb23 = GPIO_PIN(pb23) % (detail_gpio::EXTERNAL_NUM_INTERRUPTS - 1);
-			auto irq_pa14 = GPIO_PIN(pa14) % (detail_gpio::EXTERNAL_NUM_INTERRUPTS - 1);
+			auto irq_pb16 = GPIO_PIN(pb16) % (EXTERNAL_NUM_INTERRUPTS - 1);
+			auto irq_pb23 = GPIO_PIN(pb23) % (EXTERNAL_NUM_INTERRUPTS - 1);
+			auto irq_pa17 = GPIO_PIN(pa17) % (EXTERNAL_NUM_INTERRUPTS - 1);
 
 			print_dbg("IRQn for PB16: %u - Should be 0\n", irq_pb16);
 			print_dbg("IRQn for PB23: %u - Should be 7\n", irq_pb23);
-			print_dbg("IRQn for PA14: %u - Should be 14\n", irq_pa14);
+			print_dbg("IRQn for PA17: %u - Should be 1\n", irq_pa17);
 		}
 #endif
 
@@ -201,11 +205,30 @@ namespace lwiot
 		{
 			return -EINVALID;
 		}
+
+		void GpioChip::invoke(ExtIrqs num)
+		{
+			auto irqnum = static_cast<uint8_t>(num);
+			uint32_t msk = 1UL << irqnum;
+
+			if(this->irq_map_[irqnum].pin != NOT_INITIALIZED)
+				this->irq_map_[irqnum].handler();
+
+			EIC->INTFLAG.reg = msk;
+		}
+
 	}
 
 	extern "C" void pinMode(int pin, int mode)
 	{
 	}
 }
+
+void invokeIrq(ExtIrqs num)
+{
+	auto instance = lwiot::samd51::GpioChip::Instance();
+	instance->invoke(num);
+}
+
 
 lwiot::GpioChip& gpio = lwiot::samd51::GpioChip::Instance().get();

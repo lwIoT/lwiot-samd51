@@ -6,6 +6,8 @@
 #
 
 SET(PORT_SOURCE_FILES
+	${PROJECT_SOURCE_DIR}/samd51/samd51a/init.c
+
 	${PROJECT_SOURCE_DIR}/samd51/hal/src/hal_atomic.c
 	${PROJECT_SOURCE_DIR}/samd51/hal/src/hal_cache.c
 	${PROJECT_SOURCE_DIR}/samd51/hal/src/hal_delay.c
@@ -51,6 +53,7 @@ SET(SYSTEM_SOURCE_FILES
 	${PROJECT_SOURCE_DIR}/samd51/hal/utils/src/utils_syscalls.c
 	${PROJECT_SOURCE_DIR}/samd51/hal/utils/src/utils_read_write.c
 	${PROJECT_SOURCE_DIR}/samd51/hal/src/hal_time.c
+	${PROJECT_SOURCE_DIR}/samd51/gpio/irq_handlers.c
 )
 
 add_library(lwiot-platform ${PORT_SOURCE_FILES} ${PORT_ENV_SOURCES})
