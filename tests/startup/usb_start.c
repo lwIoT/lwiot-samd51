@@ -75,6 +75,11 @@ int __attribute__((weak)) _write(int file, const char *buf, int length)
 	if(!listener)
 		return length;
 
+	if(*buf == '\n') {
+		const char creturn = '\r';
+		_write(file, &creturn, 1);
+	}
+
 	const uint8_t* end = ((void*)buf + (unsigned int)length);
 	for (const uint8_t* p = (const uint8_t*)buf; p < end; ++p) {
 		outBuf[outLen++] = *p;

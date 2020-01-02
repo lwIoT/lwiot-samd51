@@ -12,6 +12,8 @@
 #include "app.h"
 #include "usb_start.h"
 
+extern void app_main();
+
 int main(void)
 {
 	/* Initializes MCU, drivers and middleware */
@@ -24,17 +26,5 @@ int main(void)
 	cdcd_acm_example();
 
 	lwiot_init();
-
-	_Bool value = false;
-
-	/* Replace with your application code */
-	while (1) {
-		lwiot_sleep(500);
-
-		gpio_set_pin_level(LED_PIN, value);
-		gpio_set_pin_level(NEO_PIN,	value);
-		print_dbg("Hello lwIoT!\r\n");
-		
-		value = !value;
-	}
+	app_main();
 }

@@ -28,24 +28,28 @@ INC_DIRS = \
 	-I"$(PROJECT_SOURCE_DIR)/build/debug"
 
 C_FLAGS := -mthumb  -DF_CPU=120000000 -DCONF_CPU_FREQUENCY=120000000 -Os -ffunction-sections -mlong-calls -Wall -c -std=gnu11 -D__SAMD51J19A__ -mcpu=cortex-m4 -mfloat-abi=softfp -mfpu=fpv4-sp-d16
+CXX_FLAGS := -D__SAMD51J19A__ -D__SAMD51__ -mlong-calls -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=softfp -mthumb \
+	-DF_CPU=120000000 -DCONF_CPU_FREQUENCY=120000000 -fno-rtti -ffunction-sections -Wc++14-compat -c
 C_FLAGS += $(INC_DIRS)
+CXX_FLAGS += $(INC_DIRS)
 
-OBJS := build/main.o build/driver_init.o build/read_write.o build/usb_start.o
+OBJS := build/main.o build/driver_init.o build/read_write.o build/usb_start.o build/app.o
 OBJS_AS_ARGS = \
 "build/main.o" \
 "build/driver_init.o" \
 "build/read_write.o" \
-"build/usb_start.o"
+"build/usb_start.o" \
+"build/app.o"
 
 all: build $(OBJS)
-	@$(CC) $(C_FLAGS) -o build/startup_samd51.o $(PROJECT_SOURCE_DIR)/samd51/samd51a/gcc/gcc/startup_samd51.c
 	@echo Linking build/application.elf
-	@$(CC) $(OBJS_AS_ARGS) -o build/application.elf -Wl,--start-group -lc -lm -Wl,--end-group -mthumb \
+	@$(CXX) $(OBJS_AS_ARGS) -o build/application.elf -Wl,--start-group -lc -lm -Wl,--end-group -mthumb \
 		--specs=nano.specs -Wl,--gc-sections -mcpu=cortex-m4 \
 		-L$(PROJECT_SOURCE_DIR)/samd51/samd51a/gcc/gcc \
 		-T$(PROJECT_SOURCE_DIR)/samd51/samd51a/gcc/gcc/samd51j19a_flash.ld \
 		-L$(PROJECT_SOURCE_DIR)/build/debug/samd51 -L$(PROJECT_SOURCE_DIR)/build/debug/lwiot-core/source \
-		-Wl,--whole-archive -llwiot-system -Wl,--no-whole-archive -llwiot -llwiot-platform
+		-Wl,--no-wchar-size-warning \
+		-Wl,--whole-archive -llwiot-system -Wl,--no-whole-archive -llwiot -llwiot-platform -llwiot
 	@echo Creating application.bin
 	@$(COPY) -O binary build/application.elf build/application.bin
 	@echo Creating application.hex
@@ -68,3 +72,7 @@ clean:
 build/%.o: %.c
 	@echo Building file: $<
 	@$(CC) $(C_FLAGS) -o $@ $<
+
+build/%.o: %.cpp
+	@echo Building file: $<
+	@$(CXX) $(CXX_FLAGS) -o $@ $<
