@@ -7,6 +7,9 @@
 
 #pragma once
 
+#include <sam.h>
+#include <hal_gpio.h>
+
 #include <lwiot/lwiot.h>
 
 typedef enum {
@@ -32,6 +35,33 @@ typedef enum {
 	EXTERNAL_INT_NONE = NOT_AN_INTERRUPT,
 } ExtIrqs;
 
+typedef enum {
+	PIO_NOT_A_PIN=-1,
+	PIO_EXTINT=0,
+	PIO_ANALOG,
+	PIO_SERCOM,
+	PIO_SERCOM_ALT,
+	PIO_TIMER,
+	PIO_TIMER_ALT,
+	PIO_TCC_PDEC,
+	PIO_COM,
+	PIO_SDHC,
+	PIO_I2S,
+	PIO_PCC,
+	PIO_GMAC,
+	PIO_AC_CLK,
+	PIO_CCL,
+	PIO_DIGITAL,
+	PIO_INPUT,
+	PIO_INPUT_PULLUP,
+	PIO_OUTPUT,
+
+	PIO_PWM     = PIO_TIMER,
+	PIO_PWM_ALT = PIO_TIMER_ALT,
+	PIO_PWM_F   = PIO_TIMER_ALT,
+	PIO_PWM_G   = PIO_TCC_PDEC
+} EPioType ;
+
 #ifdef __cplusplus
 extern "C" void invokeIrq(ExtIrqs num);
 #else
@@ -53,31 +83,7 @@ namespace lwiot
 		namespace detail_gpio
 		{
 			typedef ::ExtIrqs ExtIrqs;
-
-			typedef enum {
-				PIO_NOT_A_PIN=-1,
-				PIO_EXTINT=0,
-				PIO_ANALOG,
-				PIO_SERCOM,
-				PIO_SERCOM_ALT,
-				PIO_TIMER,
-				PIO_TIMER_ALT,
-				PIO_TCC_PDEC,
-				PIO_COM,
-				PIO_SDHC,
-				PIO_I2S,
-				PIO_PCC,
-				PIO_GMAC,
-				PIO_AC_CLK,
-				PIO_CCL,
-				PIO_DIGITAL,
-				PIO_INPUT,
-				PIO_INPUT_PULLUP,
-				PIO_OUTPUT,
-
-				PIO_PWM     = PIO_TIMER,
-				PIO_PWM_ALT = PIO_TIMER_ALT,
-			} EPioType ;
+			typedef ::EPioType EPioType;
 
 			struct IrqMap {
 				irq_handler_t handler;
@@ -95,7 +101,7 @@ namespace lwiot
 				return stl::MakeRef(chip);
 			}
 
-			virtual ~GpioChip() = default;
+			~GpioChip() override = default;
 
 			void mode(int pin, const PinMode &mode) override;
 			void write(int pin, bool value) override;

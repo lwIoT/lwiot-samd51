@@ -8,10 +8,13 @@
 #include <lwiot.h>
 #include <hal_gpio.h>
 
-#include <lwiot/io/gpiochip.h>
-#include <lwiot/samd51/gpiochip.h>
 #include <lwiot/error.h>
 #include <lwiot/log.h>
+
+#include <lwiot/io/gpiochip.h>
+
+#include <lwiot/samd51/gpio.h>
+#include <lwiot/samd51/gpiochip.h>
 
 namespace lwiot
 {
@@ -93,9 +96,6 @@ namespace lwiot
 
 		void GpioChip::attachIrqHandler(int pin, irq_handler_t handler, IrqEdge edge)
 		{
-			uint32_t temp;
-			auto raw_pin = GPIO_PIN(pin);
-			auto port = GPIO_PORT(pin);
 			uint32_t config;
 			uint32_t pos;
 
@@ -127,17 +127,9 @@ namespace lwiot
 
 				EIC->INTENSET.reg = EIC_INTENSET_EXTINT(1 << EXTERNAL_INT_NMI);
 			} else {
-				if(raw_pin & 1) {
-					temp = (PORT->Group[port].PMUX[raw_pin >> 1].reg) & PORT_PMUX_PMUXE(0xF);
-					PORT->Group[port].PMUX[raw_pin >> 1].reg = temp | PORT_PMUX_PMUXO(detail_gpio::PIO_EXTINT);
-					PORT->Group[port].PINCFG[raw_pin].reg |= PORT_PINCFG_PMUXEN | PORT_PINCFG_DRVSTR;
-				} else {
-					temp = (PORT->Group[port].PMUX[raw_pin >> 1].reg) & PORT_PMUX_PMUXO(0xF);
-					PORT->Group[port].PMUX[raw_pin >> 1].reg = temp | PORT_PMUX_PMUXE(detail_gpio::PIO_EXTINT);
-					PORT->Group[port].PINCFG[raw_pin].reg |= PORT_PINCFG_PMUXEN | PORT_PINCFG_DRVSTR;
-				}
+				pin_set_peripheral(pin, PIO_EXTINT);
 
-				auto irqno = raw_pin % (EXTERNAL_NUM_INTERRUPTS - 1);
+				auto irqno = GPIO_PIN(pin) % (EXTERNAL_NUM_INTERRUPTS - 1);
 
 				this->irq_map_[irqno].handler = handler;
 				this->irq_map_[irqno].pin = pin;
