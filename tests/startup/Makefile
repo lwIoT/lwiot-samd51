@@ -33,11 +33,9 @@ CXX_FLAGS := -D__SAMD51J19A__ -D__SAMD51__ -mlong-calls -mcpu=cortex-m4 -mfpu=fp
 C_FLAGS += $(INC_DIRS)
 CXX_FLAGS += $(INC_DIRS)
 
-OBJS := build/main.o build/driver_init.o build/read_write.o build/app.o
+OBJS := build/main.o build/app.o
 OBJS_AS_ARGS = \
 "build/main.o" \
-"build/driver_init.o" \
-"build/read_write.o" \
 "build/app.o"
 
 all: build $(OBJS)
