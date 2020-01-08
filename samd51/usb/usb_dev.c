@@ -67,13 +67,11 @@ static bool usb_device_cb_bulk_in(const uint8_t ep, const enum usb_xfer_code rc,
 	return false;
 }
 
-int __attribute__((weak)) _write(int file, const char *ptr, int len); /* Remove GCC compiler warning */
-
 static uint8_t outBuf[80];
 static uint32_t outLen = 0;
-int __attribute__((weak)) _write(int file, const char *buf, int length)
+int _write(int file, const char *buf, int length)
 {
-	if(!listener)
+	if(!cdcdf_acm_is_enabled())
 		return length;
 
 	if(*buf == '\n') {
@@ -95,7 +93,7 @@ int __attribute__((weak)) _write(int file, const char *buf, int length)
 	return length;
 }
 
-int __attribute__((weak)) _read(int file, char *buf, int length)
+int _read(int file, char *buf, int length)
 {
 	return -1;
 }
@@ -136,11 +134,10 @@ void cdc_device_acm_init(void)
 	usbdc_attach();
 }
 
+extern volatile uint32_t __tick;
+
 void cdcd_acm_start(void)
 {
-	while (!cdcdf_acm_is_enabled()) {
-	};
-
 	cdcdf_acm_register_callback(CDCDF_ACM_CB_STATE_C, (FUNC_PTR)usb_device_cb_state_c);
 }
 

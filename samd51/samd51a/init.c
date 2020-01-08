@@ -9,9 +9,10 @@
 #include <peripheral_clk_config.h>
 #include <hal_init.h>
 #include <core_cm4.h>
+#include <hal_gpio.h>
 
 #include <lwiot/samd51/usb/hal_usb_device.h>
-#include <hal_gpio.h>
+#include <lwiot/samd51/adcchip.h>
 
 #define PA24 GPIO(GPIO_PORTA, 24)
 #define PA25 GPIO(GPIO_PORTA, 25)
@@ -19,10 +20,6 @@
 void samd51_init()
 {
 	Adc *adcs[] = {ADC0, ADC1};
-
-	/*if ( SysTick_Config( SystemCoreClock / 1000 ) ) {
-		while ( true ) ;
-	}*/
 
 	NVIC_SetPriority (SysTick_IRQn,  (1 << __NVIC_PRIO_BITS) - 2);
 
@@ -58,7 +55,7 @@ void samd51_init()
 		while( adcs[i]->SYNCBUSY.reg & ADC_SYNCBUSY_AVGCTRL );
 	}
 
-	//analogReference( AR_DEFAULT ) ;
+	analog_set_reference(AR_DEFAULT);
 
 	GCLK->PCHCTRL[DAC_GCLK_ID].reg = GCLK_PCHCTRL_GEN_GCLK4_Val | (1 << GCLK_PCHCTRL_CHEN_Pos);
 	while (GCLK->PCHCTRL[DAC_GCLK_ID].bit.CHEN == 0);

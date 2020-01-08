@@ -98,7 +98,7 @@ void no_os_init()
 	SysTick->CTRL = 7;
 	NVIC_EnableIRQ(SysTick_IRQn);
 
-	while(__tick < 100);
+	while(__tick < 500);
 }
 
 time_t lwiot_tick_ms()
