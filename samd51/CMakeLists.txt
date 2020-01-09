@@ -37,7 +37,13 @@ SET(PORT_SOURCE_FILES
 	${PROJECT_SOURCE_DIR}/samd51/sercom/hardwarei2calgorithm.cpp
 
 	${PROJECT_SOURCE_DIR}/samd51/gpio/gpio.cpp
+	${PROJECT_SOURCE_DIR}/samd51/gpio/analog.c
+	${PROJECT_SOURCE_DIR}/samd51/gpio/adcchip.cpp
+	${PROJECT_SOURCE_DIR}/samd51/gpio/dacchip.cpp
 	${PROJECT_SOURCE_DIR}/samd51/gpio/gpiochip.cpp
+
+	${PROJECT_SOURCE_DIR}/samd51/pwm/pwmtimer.cpp
+	${PROJECT_SOURCE_DIR}/samd51/pwm/pwmchannel.cpp
 
 	${PROJECT_SOURCE_DIR}/samd51/new.cpp
 )
